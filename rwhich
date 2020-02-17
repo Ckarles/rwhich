@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# exit with error if no parameter
+[ -z $1 ] && exit 1
+
+cur_link=$(which ${1})
+
+# exit gracefully if target already resolved or which failed
+{ [ ! -L ${cur_link} ] || [ -z ${cur_link} ]; } && echo "${cur_link}" && exit 0
+
+# recursive resolve of the links
+while [ -L ${cur_link} ]; do
+  echo $cur_link
+
+  link_dirname=$(dirname ${cur_link})
+  link_target=$(readlink ${cur_link})
+  cd $link_dirname
+
+  cur_link="$(realpath -s $link_target)"
+done
+echo $cur_link
